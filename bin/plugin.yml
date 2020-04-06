@@ -1,0 +1,10 @@
+name: VoteDay
+author: Ksio
+main: ksio.voteday.main.VoteDay
+version: 1.0.0
+api-version: 1.15
+commands:
+ voteday:
+  description: Vote to bring the sun out
+  usage: Something went wrong, please use /voteday help
+  aliases: vd
