@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -16,124 +17,127 @@ import org.bukkit.entity.Player;
 
 public class Vote {
 
-	int id;
+	private int runnableID;
 	
-	BossBar bar;
+	private BossBar bar;
 	
-	VoteDay vd;
+	private VoteDay vd;
 	
-	int maxPlayers;
-	String world;
+	private int maxPlayers;
+	private World world;
+	private boolean isPassed = false;
 	
-	List<UUID> players = new ArrayList<UUID>();
+	private List<UUID> players = new ArrayList<UUID>();
 	
-	public Vote(String world, VoteDay vd, int id) {
-		this.id = id;
+	public Vote(World world, VoteDay vd) {
 		this.world = world;
 		bar = Bukkit.createBossBar(ChatColor.GOLD + "Vote for daytime", BarColor.YELLOW, BarStyle.SEGMENTED_10);
 		bar.setVisible(true);
 		this.vd = vd;
 		// add all players
 		editMaxPlayers();
-		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Voting for day time, type " + ChatColor.WHITE + "/voteday" + ChatColor.GOLD + " or " + ChatColor.WHITE + "/vd" + ChatColor.GOLD + " to vote.");
+		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Voting for daytime, type " + ChatColor.WHITE + "/voteday" + ChatColor.GOLD + " or " + ChatColor.WHITE + "/vd" + ChatColor.GOLD + " to vote.");
 	}
-	
-	public void addPlayer(Player p) {
-		players.add(p.getUniqueId());
+	// HANDLE PLAYERS
+	public void addPlayer(Player player) {
+		players.add(player.getUniqueId());
 		// update GUI
-		updateGUI();
+		updateBar();
 		// you voted
-		TextComponent mc = new TextComponent(vd.getPrefix() + ChatColor.WHITE + p.getDisplayName() + ChatColor.GOLD + " voted for day time. (" );
+		TextComponent mc = new TextComponent(vd.getPrefix() + ChatColor.WHITE + player.getDisplayName() + ChatColor.GOLD + " voted for daytime. (" );
 		mc.addExtra(getStatus());
 		mc.addExtra(new TextComponent(ChatColor.GOLD + ")"));
 		Bukkit.getServer().spigot().broadcast(mc);
-		passVote();
+		check();
 	}
 	
-	public void removePlayer(Player p){
-		if (players.contains(p.getUniqueId())) 
-			players.remove(p.getUniqueId());
-		updateGUI();
-		TextComponent mc = new TextComponent(vd.getPrefix() + ChatColor.WHITE + p.getDisplayName() + ChatColor.RED + " is no longer voting. (" );
+	public void removePlayer(Player player){
+		if (players.contains(player.getUniqueId())) 
+			players.remove(player.getUniqueId());
+		updateBar();
+		TextComponent mc = new TextComponent(vd.getPrefix() + ChatColor.WHITE + player.getDisplayName() + ChatColor.RED + " is no longer voting. (" );
 		mc.addExtra(getStatus());
 		mc.addExtra(new TextComponent(ChatColor.RED + ")"));
 		Bukkit.getServer().spigot().broadcast(mc);
 	}
-	
-	private void updateGUI() {
-		bar.setProgress(((double) players.size()) / maxPlayers);
+	public boolean hasVoted(Player player) {
+		return players.contains(player.getUniqueId());
+	} 
+	public void editMaxPlayers() {
+		editMaxPlayers(0);
+	}
+	public void editMaxPlayersSafe() {
+		editMaxPlayersSafe(0);
+	}
+	public void editMaxPlayers(int offset) {
+		editMaxPlayersSafe(offset);
+		check();
+	}
+	public void editMaxPlayersSafe(int offset) {
+		maxPlayers = world.getPlayers().size() + offset;
+		updatePlayers();
+		updateBar();
+	}
+	// GUI AND BAR STUFF
+	private void updateBar() {
+		if (maxPlayers == 0)
+			bar.setProgress(0.0);
+		else
+			bar.setProgress(((double) players.size()) / maxPlayers);
 	}
 	
-	private void updatePlayersGUI() {
+	private void updatePlayers() {
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (p.getWorld().getName().equalsIgnoreCase(world))
+			if (p.getWorld().equals(world))
 				bar.addPlayer(p);
 			else if (bar.getPlayers().contains(p))
 				bar.removePlayer(p);
 			
 		}
 	}
-	
-	
-	private void passVote() {
+	public void clearBar() {
+		bar.setVisible(false);
+		bar = null;
+	}	
+	// PASS AND CHECK
+	private void check() {
 		if (bar.getProgress() >= 0.5) {
-			Bukkit.getWorld(world).setTime(1000);
-			// Clear GUI
-			clearGUI();
-			// Announce
-			Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Vote passed, rise and shine.");
-			vd.stopVote();
+			pass();
 		}
 	}
-	public String getWorld() {
-		return world;
+	public void pass() {
+		world.setTime(1000);
+		clearBar();
+		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Vote passed, rise and shine.");
+		Bukkit.getScheduler().cancelTask(runnableID);
+		isPassed = true;
 	}
-	public void clearGUI() {
-		bar.setVisible(false);
-	}
-	public boolean hasVoted(Player player) {
-		return players.contains(player.getUniqueId());
-	} 
-	public int getVoters() {
-		return players.size();
-	}
-	public int getMaxPlayers() {
-		return maxPlayers;
-	}
+	// TEXT COMPONENT
 	public TextComponent getStatus() {
-		TextComponent mainComponent = new TextComponent(getVoters() + "/" + getMaxPlayers());
+		TextComponent mainComponent = new TextComponent(players.size() + "/" + maxPlayers);
 		mainComponent.setColor(net.md_5.bungee.api.ChatColor.WHITE);
+		if (players.size() > 0)
 		mainComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(getPlayerNamesString()).create() ) );
 		return mainComponent;
 	}
-	public List<String> getPlayerNames(){
-		List<String> playerNames = new ArrayList<String>();
-		if (players != null)
-		for (UUID uuid : players)
-			playerNames.add(Bukkit.getPlayer(uuid).getName());
-		return playerNames;
-	}
 	public String getPlayerNamesString() {
 		String r = "";
-		List<String> playerNames = getPlayerNames();
-		if (playerNames != null)
-		for (String s : playerNames)
-			r = r + s + "\n";
+		if (players != null)
+			for (UUID uuid : players)
+				r = r + Bukkit.getPlayer(uuid).getName() + "\n";
 		return r;
 	}
-
-	public void editMaxPlayers() {
-		this.maxPlayers = Bukkit.getWorld(world).getPlayers().size();
-		updatePlayersGUI();
-		updateGUI();
-		passVote();
+	// SETTERS
+	public void setID(int ID) {
+		runnableID = ID;
 	}
-	public void editMaxPlayers(int i) {
-		this.maxPlayers = Bukkit.getWorld(world).getPlayers().size() + i;
-		updatePlayersGUI();
-		updateGUI();
-		passVote();
-		
+	// GETTERS
+	public World getWorld() {
+		return world;
+	}
+	// BOOLS
+	public boolean isPassed() {
+		return isPassed;
 	}
 	
 }

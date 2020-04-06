@@ -32,7 +32,7 @@ public class VoteDayCommand implements CommandExecutor, TabCompleter{
 				else if (args.length > 0) {
 					switch (args[0].toLowerCase()) {
 					case "help":
-						p.sendMessage(vd.getPrefix() + ChatColor.GOLD + "This is a plugin that allows you to vote for day time, no more sleeping needed.");
+						p.sendMessage(vd.getPrefix() + ChatColor.GOLD + "This is a plugin that allows you to vote for daytime, no more sleeping needed.");
 						p.sendMessage(ChatColor.GOLD + "Main command: " + ChatColor.WHITE + "/voteday" + ChatColor.GOLD + " (" + ChatColor.WHITE + "/vd" + ChatColor.GOLD + " also works). List of commands:");
 						p.sendMessage(ChatColor.WHITE + "/voteday help" + ChatColor.YELLOW + " - " + ChatColor.GOLD + "Displays help for the plugin (this page).");
 						p.sendMessage(ChatColor.WHITE + "/voteday cancel" + ChatColor.YELLOW + " - " + ChatColor.GOLD + "Removes your vote.");
@@ -46,7 +46,7 @@ public class VoteDayCommand implements CommandExecutor, TabCompleter{
 						voteCancel(p);
 						break;
 					case "status":
-						if (vd.isVoting(p.getWorld().getName())) {
+						if (vd.isVotingInWorld(p.getWorld())) {
 							TextComponent mc = new TextComponent(vd.getPrefix() + ChatColor.GOLD + "Currently, (");
 							mc.addExtra(vd.getVote().getStatus());
 							mc.addExtra(new TextComponent(ChatColor.GOLD + ") have voted."));
@@ -96,17 +96,21 @@ public class VoteDayCommand implements CommandExecutor, TabCompleter{
 			p.sendMessage(vd.getPrefix() + ChatColor.RED + "You can't vote during daytime.");
 			return;
 		}
-		if (vd.isVoting(p.getWorld().getName())) {
-			vd.vote(p);
+		if (vd.isVotingInWorld(p.getWorld())) {
+			vote(p);
 		} else {
-			vd.startVote(p.getWorld().getName());
-			vd.vote(p);
+			vd.startVote(p.getWorld());
+			vote(p);
 		}
 	}
 	private void voteCancel(Player p) {
-		if (vd.isVoting(p.getWorld().getName()))
+		if (vd.isVotingInWorld(p.getWorld()))
 			if (vd.getVote().hasVoted(p))
 				vd.getVote().removePlayer(p);
 	}
-
+	private void vote(Player p) {
+		if (!vd.getVote().hasVoted(p))
+			vd.getVote().addPlayer(p);
+		else p.sendMessage(vd.getPrefix() + ChatColor.RED + "You already voted.");
+	}
 }

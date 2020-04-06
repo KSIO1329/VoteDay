@@ -19,18 +19,18 @@ public class MaxPlayerChange implements Listener{
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
-		if (vd.isVoting(event.getPlayer().getWorld().getName())) {
+		if (vd.isVotingInWorld(event.getPlayer().getWorld())) {
 			vd.getVote().editMaxPlayers();
 			
 		}
 	}
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
-		if (vd.isVoting(event.getPlayer().getWorld().getName())) {
+		if (vd.isVotingInWorld(event.getPlayer().getWorld())) {
 			Vote vote = vd.getVote();
 			if (vote.hasVoted(event.getPlayer())) {
+				vote.editMaxPlayersSafe(-1);
 				vote.removePlayer(event.getPlayer());
-				vote.editMaxPlayers(-1);
 			} else {
 				vote.editMaxPlayers(-1);
 			}
@@ -38,13 +38,13 @@ public class MaxPlayerChange implements Listener{
 	}
 	@EventHandler
 	public void onPortal(PlayerChangedWorldEvent event) {
-		if (vd.isVoting(event.getPlayer().getWorld().getName()))
+		if (vd.isVotingInWorld(event.getPlayer().getWorld()))
 			vd.getVote().editMaxPlayers();
-		else if (vd.isVoting(event.getFrom().getName())) {
+		else if (vd.isVotingInWorld(event.getFrom())) {
 			Vote vote = vd.getVote();
 			if (vote.hasVoted(event.getPlayer())) {
+				vote.editMaxPlayersSafe();
 				vote.removePlayer(event.getPlayer());
-				vote.editMaxPlayers();
 			} else {
 				vote.editMaxPlayers();
 			}
