@@ -25,7 +25,7 @@ public class Vote {
 	
 	private int maxPlayers;
 	private World world;
-	private boolean isPassed = false;
+	private boolean isDone = false;
 	
 	private List<UUID> players = new ArrayList<UUID>();
 	
@@ -35,7 +35,7 @@ public class Vote {
 		bar.setVisible(true);
 		this.vd = vd;
 		// add all players
-		editMaxPlayers();
+		editMaxPlayers(2);
 		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Voting for daytime, type " + ChatColor.WHITE + "/voteday" + ChatColor.GOLD + " or " + ChatColor.WHITE + "/vd" + ChatColor.GOLD + " to vote.");
 	}
 	// HANDLE PLAYERS
@@ -110,7 +110,11 @@ public class Vote {
 		clearBar();
 		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Vote passed, rise and shine.");
 		Bukkit.getScheduler().cancelTask(runnableID);
-		isPassed = true;
+		isDone = true;
+	}
+	public void finish() {
+		clearBar();
+		isDone = true;
 	}
 	// TEXT COMPONENT
 	public TextComponent getStatus() {
@@ -136,8 +140,8 @@ public class Vote {
 		return world;
 	}
 	// BOOLS
-	public boolean isPassed() {
-		return isPassed;
+	public boolean isDone() {
+		return isDone;
 	}
 	
 }

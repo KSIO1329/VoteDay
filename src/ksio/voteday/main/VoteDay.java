@@ -38,7 +38,7 @@ public class VoteDay extends JavaPlugin{
 		vote.setID(getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
             @Override
             public void run() {
-		        vote.clearBar();
+		        vote.finish();
 		        Bukkit.broadcastMessage(getPrefix() + ChatColor.RED + "Not enough votes to pass, voting failed.");
             }
         }, 1200L));
@@ -46,7 +46,7 @@ public class VoteDay extends JavaPlugin{
 	
 	public boolean isVotingInWorld(World world) {
 		if (vote == null) return false;
-		if (vote.isPassed()) return false;
+		if (vote.isDone()) return false;
 		if (vote.getWorld().equals(world))
 			return true;
 		return false;
