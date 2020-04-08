@@ -28,7 +28,7 @@ public class VoteDay extends JavaPlugin{
 	@Override
 	public void onDisable() {
 		// TURN OFF BAR
-		if (vote != null)
+		if (!vote.isDone())
 			vote.clearBar();
 		Bukkit.getServer().getLogger().info("Disabled " + Bukkit.getName() + " v" + Bukkit.getVersion() + ".");
 	}

@@ -35,7 +35,7 @@ public class Vote {
 		bar.setVisible(true);
 		this.vd = vd;
 		// add all players
-		editMaxPlayers(2);
+		editMaxPlayers();
 		Bukkit.broadcastMessage(vd.getPrefix() + ChatColor.GOLD + "Voting for daytime, type " + ChatColor.WHITE + "/voteday" + ChatColor.GOLD + " or " + ChatColor.WHITE + "/vd" + ChatColor.GOLD + " to vote.");
 	}
 	// HANDLE PLAYERS
