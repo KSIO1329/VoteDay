@@ -1,44 +1,43 @@
 package ksio.voteday.configuration;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import ksio.voteday.main.VoteDay;
-import ksio.voteday.messages.MessageManager;
+import ksio.voteday.main.VotePlugin;
 
 public class FileManager {
 	
-	VoteDay plugin;
+	VotePlugin plugin;
 	private File ConfigFile = null;
 	private FileConfiguration Config = null;
 
 	private File MessagesFile = null;
 	private FileConfiguration Messages = null;
 	
-	public FileManager(VoteDay plugin) {
+	public FileManager(VotePlugin plugin) {
 		this.plugin = plugin;
 		saveDefaultConfig();
 		reloadConfig();
 		saveDefaultMessages();
 		reloadMessages();
 	}
-	public MessageManager.Message reloadAll() {
+	public ksio.voteday.messages.Message reloadAll() {
 		if (reloadConfig() && reloadMessages()) {
 			try {
-			MessageManager.Message.refreshAll();
+				plugin.getVoteManager().clearAll();
+				ksio.voteday.messages.Message.refreshAll();
 			} catch (Exception e) {
-				return MessageManager.Message.reloadFailure;
+				return ksio.voteday.messages.Message.reloadFailure;
 			}
-		} else return MessageManager.Message.reloadFailure;
-		return MessageManager.Message.reloadSuccess;
+		} else return ksio.voteday.messages.Message.reloadFailure;
+		return ksio.voteday.messages.Message.reloadSuccess;
 	}
+	
 	public boolean reloadConfig() {
 		if (ConfigFile == null) {
 			    ConfigFile = new File(plugin.getDataFolder(), "config.yml");
@@ -55,7 +54,6 @@ public class FileManager {
 			}
 			return true;
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -65,16 +63,6 @@ public class FileManager {
 	        reloadConfig();
 	    }
 	    return Config;
-	}
-	public void saveConfig() {
-	    if (Config == null || ConfigFile == null) {
-	        return;
-	    }
-	    try {
-	        getConfig().save(ConfigFile);
-	    } catch (IOException ex) {
-	        plugin.getLogger().log(Level.SEVERE, "Could not save config to " + ConfigFile, ex);
-	    }
 	}
 	public void saveDefaultConfig() {
 	    if (ConfigFile == null) {
@@ -101,7 +89,6 @@ public class FileManager {
 			}
 			return true;
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
@@ -111,16 +98,6 @@ public class FileManager {
 			reloadMessages();
 		}
 		return Messages;
-	}
-	public void saveMessages() {
-	    if (Messages == null || MessagesFile == null) {
-	        return;
-	    }
-	    try {
-	        getMessages().save(MessagesFile);
-	    } catch (IOException ex) {
-	        plugin.getLogger().log(Level.SEVERE, "Could not save config to " + MessagesFile, ex);
-	    }
 	}
 	public void saveDefaultMessages() {
 	    if (MessagesFile == null) {

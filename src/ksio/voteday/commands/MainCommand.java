@@ -9,17 +9,22 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import ksio.voteday.main.VoteDay;
-import ksio.voteday.messages.MessageManager.Message;
+import ksio.voteday.main.VotePlugin;
+import ksio.voteday.messages.Message;
+import ksio.voteday.vote.VoteType;
 
-public class VoteDayCommand implements CommandExecutor, TabCompleter{
+public class MainCommand implements CommandExecutor, TabCompleter{
 	
-	VoteDay vd;
+	VotePlugin plugin;
 	
-	public VoteDayCommand(VoteDay vd) {
-		this.vd = vd;
+	public MainCommand(VotePlugin plugin) {
+		this.plugin = plugin;
+		load();
 	}
-
+	void load() {
+		plugin.getCommand("voteday").setExecutor(this);
+		plugin.getCommand("voteday").setTabCompleter(this);
+	}
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (label.equalsIgnoreCase("voteday") || label.equalsIgnoreCase("vd")) {
@@ -27,47 +32,43 @@ public class VoteDayCommand implements CommandExecutor, TabCompleter{
 			if (args.length == 0) {
 				if (sender instanceof Player) {
 					p = (Player) sender;
-					voteConfirm(p);
+					plugin.getVoteManager().vote(p, VoteType.Day);
 				}
 			}
 			else if (args.length > 0) {
 				switch (args[0].toLowerCase()) {
 				case "help":
-					sender.sendMessage(Message.helpCommand.value);
+					sender.sendMessage(Message.helpCommand.getString());
 					break;
 				case "confirm":
 					if (sender instanceof Player) {
 						p = (Player) sender;
-						voteConfirm(p);
+						plugin.getVoteManager().vote(p, VoteType.Day);
 					}
 					break;
 				case "cancel":
 					if (sender instanceof Player) {
 						p = (Player) sender;
-						voteCancel(p);
+						plugin.getVoteManager().unvote(p);
 					}
 					break;
 				case "status":
 					if (sender instanceof Player) {
 						p = (Player) sender;
-						if (vd.isVotingInWorld(p.getWorld())) {
-							p.spigot().sendMessage(vd.getVote().fitStatus(Message.statusCommand.value));
-						}
-						else
-							p.sendMessage(Message.noVote.value);
+						plugin.getVoteManager().sendStatusMessage(p);
 					}
 					break;
 				case "reload":{
 					if (!sender.hasPermission("voteday.reload")) {
-						sender.sendMessage(Message.noPermission.value);
+						sender.sendMessage(Message.noPermission.getString());
 					}
 					else {
-						sender.sendMessage(vd.getFileManager().reloadAll().value);
+						sender.sendMessage(plugin.getFileManager().reloadAll().getString());
 					}
 					break;
 				}
 				default:
-					sender.sendMessage(Message.invalidUsage.value);
+					sender.sendMessage(Message.invalidUsage.getString());
 				}
 			}
 			return true;
@@ -91,33 +92,5 @@ public class VoteDayCommand implements CommandExecutor, TabCompleter{
 		}
 		return null;
 		
-	}
-	private void voteConfirm(Player p) {
-		if (p.getWorld().getName().equalsIgnoreCase("world_nether") || p.getWorld().getName().equalsIgnoreCase("world_the_end")) {
-			// Send wrong world bruh
-			p.sendMessage(vd.getMessageManager().parseWorld(Message.voteFailWorld, p.getWorld()));
-			return;
-		}
-		if (p.getWorld().getTime() > 0 && p.getWorld().getTime() < 12000) {
-			// Send wrong time bruh
-			p.sendMessage(Message.voteFailTime.value);
-			return;
-		}
-		if (vd.isVotingInWorld(p.getWorld())) {
-			vote(p);
-		} else {
-			vd.startVote(p.getWorld());
-			vote(p);
-		}
-	}
-	private void voteCancel(Player p) {
-		if (vd.isVotingInWorld(p.getWorld()))
-			if (vd.getVote().hasVoted(p))
-				vd.getVote().removePlayer(p);
-	}
-	private void vote(Player p) {
-		if (!vd.getVote().hasVoted(p))
-			vd.getVote().addPlayer(p);
-		else p.sendMessage(Message.alreadyVoted.value);
 	}
 }

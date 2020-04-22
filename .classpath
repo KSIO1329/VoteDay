@@ -6,7 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Zeus/BuildTools/Spigot/Spigot-API/target/spigot-api-1.15.2-R0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Zeus/BuildTools/Spigot/Spigot-API/target/spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="C:/Zeus/BuildTools/spigot-api-1.15.2-R0.1-SNAPSHOT-shaded.jar"/>
+	<classpathentry kind="lib" path="C:/Zeus/BuildTools/spigot-api-1.15.2-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Zeus/BuildTools/spigot-api-1.8.8-R0.1-20160205.005117-39-shaded.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

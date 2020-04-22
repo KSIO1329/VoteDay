@@ -11,6 +11,10 @@ vote:
     percentage: 50
     # This is how long a vote lasts in ticks. 20 ticks = one second
     duration: 1200
+    # The worlds where voting will be enabled
+    worlds:
+        # This is the default world
+        - world
 
 # This setting enables the timelapse animation. Do note that this can lag the server. You can change the animation settings to your liking or just leave them at default values
 # Default: disabled
