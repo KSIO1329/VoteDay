@@ -1,18 +1,18 @@
 package ksio.voteday.messages;
 
-import java.util.List;
-import java.util.UUID;
-
+import ksio.voteday.main.VotePlugin;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import ksio.voteday.main.VotePlugin;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import java.util.List;
+import java.util.UUID;
+
 
 public enum Message{
 	pluginPrefix,
@@ -52,27 +52,33 @@ public enum Message{
 		Message.plugin = plugin;
 		Message.refreshAll();
 	}
+
 	public String getString() {
 		return value;
 	}
+
 	public static void broadcastVote(World world, String message) {
 		for (Player p : world.getPlayers()) {
 			p.sendMessage(message);
 		}
 		Bukkit.getConsoleSender().sendMessage(message);
 	}
+
 	public static void broadcastVote(World world,TextComponent message) {
 		for (Player p : world.getPlayers()) {
 			p.spigot().sendMessage(message);
 		}
 		Bukkit.getConsoleSender().sendMessage(message.toLegacyText());
 	}
+
 	public static String parseWorld(Message message, World world) {
 		return message.value.replaceAll("%world%", world.getName().toUpperCase());
 	}
+
 	public static String parsePlayer(Message message, Player player) {
 		return message.value.replaceAll("%player_name%", player.getDisplayName());
 	}
+
 	public static TextComponent parseStatus(String message, List<UUID> players, int goal) {
 		// CREATE LIST
 		String playerList = "";
@@ -86,7 +92,7 @@ public enum Message{
 		TextComponent statusComponent = new TextComponent(players.size() + "/" + goal);
 		statusComponent.setColor(net.md_5.bungee.api.ChatColor.WHITE);
 		if (players.size() > 0)
-			statusComponent.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(playerList).create() ) );
+			statusComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(playerList)));
 		// CREATE MAIN COMPONENT
 		TextComponent mainComponent = new TextComponent(message.split("%status%")[0]);
 		mainComponent.addExtra(statusComponent);

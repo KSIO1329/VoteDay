@@ -1,13 +1,13 @@
 ### Welcome to the config of the VoteDay plugin
 ### Author: Ksio
 
-# A player is eligable to vote if the player:
+# A player is eligible to vote if the player:
 # - Is not in The End or Nether
-# - The time is night (between 0 and 12000 ingame ticks)
+# - The time is night (between 0 and 12000 in-game ticks)
 
 #This section is for general vote settings
 vote:
-    # This represents which percentage of the eligable players need to vote in order for the vote to pass. Accepts decimal point numbers. Default is 50%
+    # This represents which percentage of the eligible players need to vote in order for the vote to pass. Accepts decimal point numbers. Default is 50%
     percentage: 50
     # This is how long a vote lasts in ticks. 20 ticks = one second
     duration: 1200
