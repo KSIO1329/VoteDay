@@ -20,10 +20,12 @@ public class PlayerChange implements Listener{
 	public void onJoin(PlayerJoinEvent event) {
 		plugin.getVoteManager().playerChange(event.getPlayer().getWorld());
 	}
+
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		plugin.getVoteManager().playerChange(event.getPlayer().getWorld());
 	}
+
 	@EventHandler
 	public void onPortal(PlayerChangedWorldEvent event) {
 		plugin.getVoteManager().playerChange(event.getFrom());
